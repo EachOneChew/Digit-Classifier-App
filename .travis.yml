@@ -1,7 +1,7 @@
-os: osx
+os: linux
 language: shell
 python:
-  - "2.7-dev"
+  - "2.7"
 install:
   - pip install -r requirements-travis.txt
 script:
