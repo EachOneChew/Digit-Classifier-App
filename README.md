@@ -6,7 +6,7 @@ At the moment, it will open a simple webpage with a button that allows you to up
 
 * follow [these instructions](http://flask.palletsprojects.com/en/1.1.x/installation/#install-create-env) to set up a virtual environment and install Flask in the same folder as the contents of this repo
 * make sure you are in the `Digit-Classifier-App` folder, then run `app.py` with `python app.py`
-* go to your browser and access the app at: http://localhost:5000/home or http://127.0.0.1:5000/home (5000 is the default port, but if the page is not there then check your command prompt for the port the site is running on)
+* go to your browser and access the app at: http://localhost:5000/home or http://127.0.0.1:5000/home
 
 
 (Note: unfortunately we've been unable to get Travis CI to work with this repo yet due to issues installing pyobjc in the Travis OSX environment)
