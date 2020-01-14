@@ -1,7 +1,4 @@
-import os
-from flask import Flask, flash, request, redirect, url_for
-from werkzeug.utils import secure_filename
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, request
 #The following are for the AI code
 from keras.models import load_model
 from PIL import Image, ImageFilter
@@ -15,50 +12,37 @@ import tensorflow as tf
 
 # We used keras 2.2.5 and tensorflow version 1.6
 
-app = Flask(__name__)
 
-filename = ""
-app.config["IMAGE_UPLOADS"] = "/uploads"
+app = Flask(__name__, template_folder='templates')
+
+def init():
+   global model,graph
+   model = load_model('digit_classifier.h5')
+   model._make_predict_function()
+   graph = tf.get_default_graph()
 
 @app.route("/")
 def home():
     return render_template("home.html")
 
-@app.route("/upload-image", methods=["GET", "POST"])
-def upload_image():
-    if request.method == "POST":
-        if request.files:
-            image = request.files["image"]
-            filename = secure_filename(image.filename)
-            image.save(os.path.join(app.config["IMAGE_UPLOADS"], filename))
-            print("image saved")
-            return redirect(request.url)
-    return render_template("upload_image.html")
-
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
 @app.route('/predict', methods=['GET','POST'])
 def my_form_post():
+    if request.method == 'POST':
+      img = Image.open(request.files['file'].stream).convert("L")
+      img = img.resize((28,28))
+      img = img_to_array(img)
+      img = img.reshape(1, 28, 28, 1)
+      img = img.astype('float32')
+      img = img/255.0
 
-    model = load_model('digit_classifier.h5')
+      #Makes and prints prediction
+      pred = model.predict(img)
+      mypred = pred.argmax()
 
-    #Loads and converts image to MNIST format
-    img = load_img('/uploads/filename', color_mode = "grayscale", target_size=(28,28))
-    img = img_to_array(img)
-    img = img.reshape(1, 28, 28, 1)
-    img = img.astype('float32')
-    img = img/255.0
+      return 'Predicted Number: ' + str(mypred)
 
-    #Makes and prints prediction
-    pred = model.predict(img)
-    mypred = pred.argmax()
-    result = {
-        "output": mypred
-    }
-    result = {str(key): value for key, value in result.items()}
-    return jsonify(result=result)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+   print(("* Loading Keras model and Flask starting server..."
+      "please wait until server has fully started"))
+   init()
+   app.run(debug = True)
